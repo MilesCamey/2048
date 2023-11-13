@@ -197,5 +197,15 @@ while run:
                 direction = 'LEFT'
             elif event.key == pygame.K_RIGHT:
                 direction = 'RIGHT'
+
+            if game_over:
+                if event.key == pygame.K_RETURN:
+                    board_values = [[0 for _ in range(4)] for _ in range(4)]
+                    spawn_new = True
+                    init_count = 0
+                    score = 0
+                    direction = ''
+                    game_over = False
+
     pygame.display.flip()
 pygame.quit()
