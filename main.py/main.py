@@ -1,9 +1,13 @@
+#Miles Camey, Devan Mathis
+#2048 Pygame GUI Project
+
+
 import pygame
 import random
 
 pygame.init()
 
-# initial set up
+# initial window set up
 WIDTH = 400
 HEIGHT = 500
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
@@ -47,22 +51,29 @@ def draw_over():
     screen.blit(game_over_text1, (130, 65))
     screen.blit(game_over_text2, (70,105))
 
+#Take a turn based on which direction chosen
 def take_turn(direc, board):
     global score
+    #Keeps track of which pieces have merged
     merged = [[False for _ in range(4)] for _ in range(4)]
     if direc == 'UP':
         for i in range(4):
             for j in range(4):
                 shift = 0
+                #If not in top row
                 if i > 0:
                     for q in range(i):
+                    #Moving up all pieces based on how much space is available
                         if board[q][j] == 0:
                             shift += 1
                     if shift > 0:
+                        #Makes additional space inbetween 0 and does actual movement
                         board[i - shift][j] = board[i][j]
                         board[i][j] = 0
+                    #If pieces are the same then they merge assuming they have not merged
                     if board[i - shift - 1][j] == board[i - shift][j] and not merged[i - shift][j] \
                             and not merged[i - shift - 1][j]:
+                        #Doubles Value of piece above for merge and sets other piece to zero
                         board[i - shift - 1][j] *= 2
                         score += board[i - shift - 1][j]
                         board[i - shift][j] = 0
@@ -73,14 +84,19 @@ def take_turn(direc, board):
             for j in range(4):
                 shift = 0
                 for q in range(i + 1):
+                #Add one to shift for every space down available
                     if board[3 - q][j] == 0:
                         shift += 1
                 if shift > 0:
+                    #Makes additional space inbetween 0
                     board[2 - i + shift][j] = board[2 - i][j]
                     board[2 - i][j] = 0
+                #If piece below on board and does actual movement
                 if 3 - i + shift <= 3:
+                     #If pieces are the same then they merge assuming they have not merged
                     if board[2 - i + shift][j] == board[3 - i + shift][j] and not merged[3 - i + shift][j] \
                             and not merged[2 - i + shift][j]:
+                        #Doubles Value of piece below for merge and sets other piece to zero
                         board[3 - i + shift][j] *= 2
                         score += board[3 - i + shift][j]
                         board[2 - i + shift][j] = 0
@@ -91,13 +107,17 @@ def take_turn(direc, board):
             for j in range(4):
                 shift = 0
                 for q in range(j):
+                    #Add one for space left available
                     if board[i][q] == 0:
                         shift += 1
                 if shift > 0:
+                    #Makes additional space inbetween 0 and does actual movement
                     board[i][j - shift] = board[i][j]
                     board[i][j] = 0
+                 #If pieces are the same then they merge assuming they have not merged
                 if board[i][j - shift] == board[i][j - shift - 1] and not merged[i][j - shift - 1] \
                         and not merged[i][j - shift]:
+                    #Doubles Value of piece to the left for merge and sets other piece to zero
                     board[i][j - shift - 1] *= 2
                     score += board[i][j - shift - 1]
                     board[i][j - shift] = 0
@@ -108,14 +128,19 @@ def take_turn(direc, board):
             for j in range(4):
                 shift = 0
                 for q in range(j):
+                    #Add one for space right available
                     if board[i][3 - q] == 0:
                         shift += 1
                 if shift > 0:
+                    #Makes additional space inbetween 0 and does actual movement
                     board[i][3 - j + shift] = board[i][3 - j]
                     board[i][3 - j] = 0
+                #Makes sure square is not off of board
                 if 4 - j + shift <= 3:
+                     #If pieces are the same then they merge assuming they have not merged
                     if board[i][4 - j + shift] == board[i][3 - j + shift] and not merged[i][4 - j + shift] \
                             and not merged[i][3 - j + shift]:
+                        #Doubles Value of piece to the right for merge and sets other piece to zero
                         board[i][4 - j + shift] *= 2
                         score += board[i][4 - j + shift]
                         board[i][3 - j + shift] = 0
@@ -126,13 +151,16 @@ def take_turn(direc, board):
 def new_pieces(board):
     count = 0
     full = False
+    #While there is a zero or space spawns in a new piece
     while any(0 in row for row in board) and count < 1:
         row = random.randint(0, 3)
         col = random.randint(0, 3)
         if board[row][col] == 0:
             count += 1
+            #Gives one and 10 chance of spawning a 4
             if random.randint(1, 10) == 10:
                 board[row][col] = 4
+            #Spawns in two otherwise
             else:
                 board[row][col] = 2
     if count < 1:
@@ -155,12 +183,15 @@ def draw_pieces(board):
                 value_color = colors['light text']
             else:
                 value_color = colors['dark text']
+                #Basic colors of 2048
             if value <= 2048:
                 color = colors[value]
             else:
+                #Seperate color for colors after 2048
                 color = colors['other']
             pygame.draw.rect(screen, color, [j * 95 + 20, i * 95 + 20, 75, 75], 0, 5)
             if value > 0:
+                #Setting up sizing and text of pieces
                 value_len = len(str(value))
                 font = pygame.font.Font('freesansbold.ttf', 48 - (5 * value_len))
                 value_text = font.render(str(value), True, value_color)
@@ -178,6 +209,7 @@ while run:
         board_values, game_over = new_pieces(board_values)
         spawn_new = False
         init_count += 1
+    #Sets direction if a direction is called
     if direction != '':
         board_values = take_turn(direction, board_values)
         direction = ''
@@ -188,6 +220,7 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        #Setting up basic directions
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_UP:
                 direction = 'UP'
@@ -200,6 +233,7 @@ while run:
 
             if game_over:
                 if event.key == pygame.K_RETURN:
+                    #Sets squares equal to zero and resets all variables
                     board_values = [[0 for _ in range(4)] for _ in range(4)]
                     spawn_new = True
                     init_count = 0
