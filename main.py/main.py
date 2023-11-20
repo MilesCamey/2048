@@ -6,7 +6,6 @@ import pygame
 import random
 
 pygame.init()
-
 # initial window set up
 WIDTH = 400
 HEIGHT = 500
